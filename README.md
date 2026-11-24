@@ -1,5 +1,11 @@
 # Networking for Application Security Engineers
 
+<p align="center">
+  <a href="./cover_image.png">
+    <img src="./cover_image.png" width="320" alt="Book cover for Network and Web Fundamentals for Application Security Engineers by AliTheCodeGuy">
+  </a>
+</p>
+
 The API logs `200 OK`. The dispatcher’s browser reports “Failed to fetch.” Both observations can describe the same request. Which part of the system would you inspect next?
 
 These 19 study notes are for web developers moving into application security and AppSec engineers reviewing how an application uses the network. They follow a fictional shipment dashboard from a dispatcher’s laptop through DNS, TLS, a CDN, and a private API. Along the way, you’ll read packet fields, HTTP exchanges, and application logs to work out who received a request, who authorized it, and what the browser could see.
