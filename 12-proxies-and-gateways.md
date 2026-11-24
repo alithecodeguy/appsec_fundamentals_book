@@ -6,7 +6,7 @@ In this deployment, **the CDN edge records the address it observes, and the API 
 
 **Jump to** · [Proxy roles](#1-understand-whom-a-proxy-represents) · [Load balancers and gateways](#2-compare-load-balancers-cdns-wafs-and-api-gateways) · [Shipment trace](#3-follow-one-shipment-request) · [TLS](#4-locate-each-tls-endpoint) · [Headers](#5-read-the-host-and-forwarding-headers) · [Rate limiting](#6-choose-the-address-for-rate-limiting) · [Backend reachability](#7-decide-which-paths-can-reach-the-api) · [Diagnosis](#8-find-which-hop-made-a-decision) · [Offline exercise](#9-work-through-an-offline-request-trace) · [Self-check](#10-check-your-understanding)
 
-**Course connections** · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [04 · Routing and NAT](https://chatgpt.com/library?file_id=libfile_9037a1b2f728819192205007a9ef8f21&account_id=personal) · [07 · TLS and HTTPS](https://chatgpt.com/library?file_id=libfile_cea672efcaf48191871c267844a6056e&account_id=personal) · [09 · HTTP versions](https://chatgpt.com/library?file_id=libfile_bf388af4b6f081918187c153952908cd&account_id=personal) · [11 · Cookies and credentials](https://chatgpt.com/library?file_id=libfile_5cf660f9af788191a4d3864310d2538f&account_id=personal)
+**Course connections** · [AppSec networking checklist](appsec-networking-checklist.md) · [04 · Routing and NAT](04-routing-and-nat.md) · [07 · TLS and HTTPS](07-tls-https-and-certificates.md) · [09 · HTTP versions](09-http-versions-and-request-boundaries.md) · [11 · Cookies and credentials](11-cookies-and-credentials.md)
 
 ## 1. Understand whom a proxy represents
 
@@ -265,3 +265,7 @@ PY
 5. Use a quota keyed by a verified user or tenant identifier. Enforce it at the gateway if it can validate that identity, or at the service after authentication. The public IP budget can continue to cover aggregate traffic from the office.
 6. The origin needs a credential bound to the intended customer configuration or service, plus a policy that requires it. Verify which identity the certificate actually proves and which identities the origin admits.
 7. Show separate data and readiness listeners, their route mappings, effective ingress rules for each address family, and required service identities. Then show a correlated gateway-to-data request and a monitoring-to-readiness event as examples of those policies in use.
+
+---
+
+[Previous · 11 Cookies and credentials](11-cookies-and-credentials.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 13 HTTP caching](13-http-caching.md)

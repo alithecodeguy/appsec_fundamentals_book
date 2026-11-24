@@ -1,10 +1,10 @@
-# Local networks
+# 03 · Local networks
 
 A dispatcher’s laptop sends a label to the printer at `10.0.1.40`, then loads `https://api.example.com/shipments`. Both transmissions leave through the same Ethernet interface and enter the same switch. The print job’s first data frame is addressed to the **printer’s MAC address**. The API request’s first data frame is addressed to the **router’s MAC address**, even though the IP packet is addressed to the API edge.
 
 **How does the laptop know which device to send to?** It first looks up the destination IP in its routing state. A directly reachable destination is its own next hop. A route through a gateway supplies the gateway’s IP as the next hop. The laptop then looks up that neighbor’s link-layer address, using ARP for IPv4 or Neighbor Discovery for IPv6 when it needs a mapping. Finally, the switch uses the frame’s destination MAC to select an outgoing port.
 
-This is the third topic in the [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal). It continues the office example from [Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal) and uses the prefix calculations from [IPv4, IPv6, and subnetting](https://chatgpt.com/library?file_id=libfile_af22e7b9a23c8191b1feead127e36897&account_id=personal).
+This is the third topic in the [AppSec networking checklist](appsec-networking-checklist.md). It continues the office example from [Network layers and devices](01-network-layers-and-devices.md) and uses the prefix calculations from [IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md).
 
 ## 1. What counts as local?
 
@@ -24,7 +24,7 @@ The staff LAN is VLAN 10. Its IPv6 router advertises `2001:db8:42:ab07::/64` as 
 
 ## 2. Ethernet frames and MAC addresses
 
-Ethernet carries data across a link in **frames**. The common Ethernet **Media Access Control (MAC) address** is 48 bits, written as six hexadecimal bytes. An interface can use a locally assigned address. For example, the first byte `02` in the laptop’s example MAC marks it as a locally administered individual address. Operating systems can also use private Wi-Fi addresses. Treat a MAC address as an observation tied to an interface, network, and time. [IEEE 802 address conventions](https://www.rfc-editor.org/rfc/rfc9542.html) · [Private Wi-Fi addresses on Apple devices](https://support.apple.com/en-us/102509)
+Ethernet carries data across a link in **frames**. The common Ethernet **Media Access Control (MAC) address** is 48 bits, written as six hexadecimal bytes. An interface can use a locally assigned address. For example, the first byte `02` in the laptop’s example MAC marks it as a locally administered individual address. Operating systems can also use private Wi-Fi addresses. Treat a MAC address as an observation tied to an interface, network, and time. [IEEE 802 address conventions](https://datatracker.ietf.org/doc/html/rfc9542) · [Private Wi-Fi addresses on Apple devices](https://support.apple.com/en-us/102509)
 
 | Part of an Ethernet II frame | What it tells you |
 | --- | --- |
@@ -72,7 +72,7 @@ In a typical **bridged** deployment, the laptop associates with an AP, completes
 
 **The AP and the router can both be recipients of the same transmission in different senses.** For an ordinary client-to-AP infrastructure data frame, the immediate radio receiver is the AP. The 802.11 header can also identify the logical LAN destination, such as the router’s MAC. The AP then bridges the traffic onto the wired side. This is why a Wi-Fi capture can show the AP’s BSSID alongside a different destination MAC.
 
-Wi-Fi security also has distinct endpoints. WPA2-Personal uses a pre-shared key. WPA3-Personal uses Simultaneous Authentication of Equals (SAE) for password-based key establishment. Enterprise Wi-Fi commonly uses **802.1X** with the **Extensible Authentication Protocol (EAP)** for network admission. The client is the *supplicant*, the AP is the *authenticator*, and a back-end authentication service often uses RADIUS. Wireless encryption protects the radio link between the station and its AP. The dashboard’s HTTPS connection protects application data to its TLS endpoint, and the API checks the dispatcher’s permissions. [IEEE 802.1X network access control](https://1.ieee802.org/security/802-1x/) · [Wireless security modes](https://support.apple.com/en-ie/guide/security/sec8a67fa93d/web)
+Wi-Fi security also has distinct endpoints. WPA2-Personal uses a pre-shared key. WPA3-Personal uses Simultaneous Authentication of Equals (SAE) for password-based key establishment. Enterprise Wi-Fi commonly uses **802.1X** with the **Extensible Authentication Protocol (EAP)** for network admission. The client is the *supplicant*, the AP is the *authenticator*, and a back-end authentication service often uses RADIUS. Wireless encryption protects the radio link between the station and its AP. The dashboard’s HTTPS connection protects application data to its TLS endpoint, and the API checks the dispatcher’s permissions. [IEEE 802.1X network access control](https://1.ieee802.org/security/802-1x/) · [Wireless security modes in Apple Platform Security (PDF)](https://help.apple.com/pdf/security/en_US/apple-platform-security-guide.pdf)
 
 ## 5. How a new laptop gets configured
 
@@ -284,3 +284,7 @@ The first printer frame already has the correct destination MAC. The switch floo
 | IPv4 configuration options | [DHCP options, RFC 2132](https://www.rfc-editor.org/rfc/rfc2132.html) |
 | On-link decisions and address lifetimes | [IPv6 subnet model, RFC 5942](https://www.rfc-editor.org/rfc/rfc5942.html) · [IPv6 temporary addresses, RFC 8981](https://www.rfc-editor.org/rfc/rfc8981.html) |
 | IPv6 operational security | [IPv6 network security considerations, RFC 9099](https://www.rfc-editor.org/rfc/rfc9099.html) |
+
+---
+
+[Previous · 02 IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 04 Routing and NAT](04-routing-and-nat.md)

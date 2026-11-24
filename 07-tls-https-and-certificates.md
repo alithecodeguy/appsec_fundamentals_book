@@ -6,7 +6,7 @@ A dispatcher opens `https://api.example.com/shipments`. The browser accepts the 
 
 **Jump to** · [TLS 1.3 handshake](#2-follow-a-full-tls-13-handshake) · [Certificate validation](#4-read-and-validate-an-x509-certificate-chain) · [CDN and origin](#6-protect-the-connection-from-the-cdn-to-the-origin) · [Troubleshooting](#9-diagnose-failures-from-the-client-that-observed-them) · [Local OpenSSL lab](#10-lab-with-a-private-ca-and-mtls)
 
-**Course material** · [Networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [01 · Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal) · [02 · IPv4, IPv6, and subnetting](https://chatgpt.com/library?file_id=libfile_af22e7b9a23c8191b1feead127e36897&account_id=personal) · [03 · Local networks](https://chatgpt.com/library?file_id=libfile_8693a991281481919c9bc67d8b8ffdf2&account_id=personal) · [04 · Routing and NAT](https://chatgpt.com/library?file_id=libfile_9037a1b2f728819192205007a9ef8f21&account_id=personal) · [05 · Ports, sockets, TCP, and UDP](https://chatgpt.com/library?file_id=libfile_7565d39efd548191a4143e5087d272ef&account_id=personal) · [06 · DNS](https://chatgpt.com/library?file_id=libfile_63e33ed275948191b479eb2a0ecdabd0&account_id=personal)
+**Course material** · [Networking checklist](appsec-networking-checklist.md) · [01 · Network layers and devices](01-network-layers-and-devices.md) · [02 · IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md) · [03 · Local networks](03-local-networks.md) · [04 · Routing and NAT](04-routing-and-nat.md) · [05 · Ports, sockets, TCP, and UDP](05-ports-sockets-tcp-and-udp.md) · [06 · DNS](06-dns.md)
 
 ## 1. Mark the endpoints of each protected connection
 
@@ -35,7 +35,7 @@ sequenceDiagram
 | Browser → edge at `203.0.113.80:443` | The browser expects `api.example.com` from the URL | The browser has an authenticated channel to the public endpoint. The edge can read the path, headers and body |
 | Edge → origin at `10.20.0.12:8443` | The edge expects `origin.shipments.example.com` from its upstream configuration | The edge has authenticated the intended origin. This connection has independent traffic keys and can use a different CA, TLS version or HTTP protocol |
 
-The diagram shows fresh connections. In practice, either connection can be reused. Office NAT can change the browser’s visible source IP and port while leaving the TLS endpoints intact. An intermediary that terminates TLS becomes an endpoint and can read the plaintext it needs to process. Network observers still see IP addresses, ports, packet sizes and timing. An edge or origin log can also contain data that was encrypted on the wire. [TLS security properties](https://www.rfc-editor.org/rfc/rfc9846.html) · [HTTPS origin authentication](https://www.rfc-editor.org/rfc/rfc9110.html#section-4.3.4)
+The diagram shows fresh connections. In practice, either connection can be reused. Office NAT can change the browser’s visible source IP and port while leaving the TLS endpoints intact. An intermediary that terminates TLS becomes an endpoint and can read the plaintext it needs to process. Network observers still see IP addresses, ports, packet sizes and timing. An edge or origin log can also contain data that was encrypted on the wire. [TLS security properties](https://datatracker.ietf.org/doc/html/rfc9846) · [HTTPS origin authentication](https://www.rfc-editor.org/rfc/rfc9110.html#section-4.3.4)
 
 ## 2. Follow a full TLS 1.3 handshake
 
@@ -52,7 +52,7 @@ For HTTPS over TCP, the client first establishes TCP to the selected address. TL
 
 Three operations are easy to mix up. **The issuer’s signature** on the certificate binds the subject’s public key to names and attributes under that issuer’s policy. **The server’s CertificateVerify signature** proves possession of the leaf private key in this particular handshake. **The traffic keys** encrypt and authenticate the HTTP exchange using authenticated encryption, such as AES-GCM or ChaCha20-Poly1305. The certificate itself is public and can be distributed freely. Possession of its bytes alone is insufficient to act as the server.
 
-**Forward secrecy** explains the use of ephemeral keys. In a full handshake with ephemeral key agreement, later disclosure of the server’s long-term signing key alone does not reveal earlier recorded sessions if the ephemeral and traffic secrets were erased. The endpoints can still read their own traffic while the session is active. [TLS 1.3 handshake overview](https://www.rfc-editor.org/rfc/rfc9846.html#section-2) · [Authentication messages](https://www.rfc-editor.org/rfc/rfc9846.html#section-4.4)
+**Forward secrecy** explains the use of ephemeral keys. In a full handshake with ephemeral key agreement, later disclosure of the server’s long-term signing key alone does not reveal earlier recorded sessions if the ephemeral and traffic secrets were erased. The endpoints can still read their own traffic while the session is active. [TLS 1.3 handshake overview](https://datatracker.ietf.org/doc/html/rfc9846#section-2) · [Authentication messages](https://datatracker.ietf.org/doc/html/rfc9846#section-4.4)
 
 ## 3. Compare TLS versions, reuse and resumption
 
@@ -67,7 +67,7 @@ Prefer TLS 1.3 for modern deployments. Where existing clients require TLS 1.2, u
 
 **Connection reuse** sends another HTTP request over an already established channel. **Session resumption** establishes a new TLS connection using state from an earlier one, commonly through a ticket and a resumption pre-shared key. A resumed TLS 1.3 handshake can omit a fresh certificate exchange. When diagnosing a renewal, observe a new full handshake at each relevant endpoint.
 
-**0-RTT early data** is an optional resumption feature. It lets a client send some application data before the new handshake finishes. Early data can be replayed and has different protection from ordinary application data. A request that creates a shipment or charges a customer should wait for the handshake under the service’s early-data policy. Consider the operation’s actual effects even if its HTTP method looks read-only. HTTP `425 Too Early` allows a responder to decline a request it is unwilling to process as early data. Application idempotency and authorization still apply. [TLS early data](https://www.rfc-editor.org/rfc/rfc9846.html#section-8) · [Early data in HTTP](https://www.rfc-editor.org/rfc/rfc8470.html)
+**0-RTT early data** is an optional resumption feature. It lets a client send some application data before the new handshake finishes. Early data can be replayed and has different protection from ordinary application data. A request that creates a shipment or charges a customer should wait for the handshake under the service’s early-data policy. Consider the operation’s actual effects even if its HTTP method looks read-only. HTTP `425 Too Early` allows a responder to decline a request it is unwilling to process as early data. Application idempotency and authorization still apply. [TLS early data](https://datatracker.ietf.org/doc/html/rfc9846#section-8) · [Early data in HTTP](https://www.rfc-editor.org/rfc/rfc8470.html)
 
 ## 4. Read and validate an X.509 certificate chain
 
@@ -132,7 +132,7 @@ To review this architecture, draw a mark wherever a component decrypts HTTP. At 
 
 If a service-mesh proxy or sidecar terminates upstream TLS, trace the remaining connection from that component to the application process. Its transport and access controls determine who can observe or send traffic on that last segment.
 
-**How mutual TLS authenticates a client.** In a full TLS 1.3 handshake, the origin requests a client certificate with `CertificateRequest`. The edge validates the origin and sends its own certificate chain and a `CertificateVerify` signature made with its client private key. The origin validates the client chain under its client trust policy, checks validity and permitted usage, and verifies the handshake signature and Finished. An origin that requires mTLS rejects peers that cannot supply an acceptable credential. The parties can use different CAs for their two roles. [TLS 1.3 client authentication](https://www.rfc-editor.org/rfc/rfc9846.html#section-4.4)
+**How mutual TLS authenticates a client.** In a full TLS 1.3 handshake, the origin requests a client certificate with `CertificateRequest`. The edge validates the origin and sends its own certificate chain and a `CertificateVerify` signature made with its client private key. The origin validates the client chain under its client trust policy, checks validity and permitted usage, and verifies the handshake signature and Finished. An origin that requires mTLS rejects peers that cannot supply an acceptable credential. The parties can use different CAs for their two roles. [TLS 1.3 client authentication](https://datatracker.ietf.org/doc/html/rfc9846#section-4.4)
 
 An origin can map a verified client SAN such as `URI:urn:example:shipments:edge` to the shipment edge workload. The request still needs an authorized dispatcher to read a particular shipment. If the application consumes identity information forwarded by a proxy, the proxy should remove incoming copies of those headers and supply its own verified values. Restrict access to the receiving application to the intended authenticated proxy path. An HTTP header by itself supplies no proof that its sender completed mTLS.
 
@@ -367,3 +367,7 @@ The successful request returns an HTTP 200 response. Look in terminal A for the 
 6. **Inspect the origin listener and the edge’s verification clock.** From the edge’s network, use its expected origin name and trust store, then check the validity of the actual leaf and intermediates on a fresh handshake.
 7. **The origin needs an authorization decision.** Establish which authenticated workload may call the endpoint and which user or delegated identity may read this particular shipment.
 8. **Early data can be replayed.** A service that creates a shipment should defer the operation until the handshake completes or reject the early request so the client can retry after the handshake.
+
+---
+
+[Previous · 06 DNS and service discovery](06-dns.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 08 URLs and HTTP semantics](08-urls-and-http-semantics.md)

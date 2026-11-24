@@ -1,10 +1,10 @@
-# Network layers and devices
+# 01 · Network layers and devices
 
 A browser calls `https://api.example.com/shipments`. On the laptop’s Ethernet link, the destination is the local router’s **MAC address**. Inside that frame, the destination is the **IP address** of the edge, the public-facing server in front of the API. Inside the encrypted connection, the HTTP request names **`/shipments`**. All three destinations are correct. Each answers a different delivery question.
 
 **Who forwards the packet, and who reads the request?** A switch forwards a frame within a local network. A router forwards the IP packet toward another network. In the deployment below, a reverse proxy terminates HTTPS and reads the HTTP request. The API reads the request forwarded by that proxy and decides which shipments the user may see.
 
-This note accompanies the first topic in the [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal).
+This note accompanies the first topic in the [AppSec networking checklist](appsec-networking-checklist.md).
 
 ## 1. What a layer does
 
@@ -207,5 +207,9 @@ For a request in your own web app, open the browser’s **Network** panel. Selec
 | The two layer models | [Cloudflare’s illustrated OSI guide](https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/) · [IETF Internet host layers, RFC 1122 §1.1.3](https://www.rfc-editor.org/rfc/rfc1122.html#section-1.1.3) |
 | Switching, routing, and finding neighbors | [How a network switch works](https://www.cloudflare.com/learning/network-layer/what-is-a-network-switch/) · [IPv4 router forwarding, RFC 1812 §5.2](https://www.rfc-editor.org/rfc/rfc1812.html#section-5.2) · [IPv6 Neighbor Discovery, RFC 4861 §3](https://www.rfc-editor.org/rfc/rfc4861.html#section-3) |
 | Transport units and modern HTTP | [TCP concepts, RFC 9293 §2](https://www.rfc-editor.org/rfc/rfc9293.html#section-2) · [UDP, RFC 768](https://www.rfc-editor.org/rfc/rfc768.html) · [HTTP/3 overview, RFC 9114 §2](https://www.rfc-editor.org/rfc/rfc9114.html#section-2) |
-| Encryption and intermediaries | [TLS 1.3, RFC 8446 §1](https://www.rfc-editor.org/rfc/rfc8446.html#section-1) · [HTTP intermediaries, RFC 9110 §3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.7) |
+| Encryption and intermediaries | [TLS 1.3, RFC 9846 §1](https://datatracker.ietf.org/doc/html/rfc9846#section-1) · [HTTP intermediaries, RFC 9110 §3.7](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.7) |
 | Applying the model in a review | [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html) · [Wireshark’s packet details pane](https://www.wireshark.org/docs/wsug_html_chunked/ChUsePacketDetailsPaneSection.html) |
+
+---
+
+[Course checklist](appsec-networking-checklist.md) · [Next · 02 IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md)

@@ -6,7 +6,7 @@ A dispatcher creates a shipment. DevTools shows `h3` for `POST /shipments`. The 
 
 **Jump to** · [HTTP/1.1 byte counts](#2-count-an-http11-request-body) · [Chunked bodies](#3-read-a-chunked-upload) · [HTTP/2 streams](#4-follow-two-http2-streams) · [HTTP/3 streams](#5-follow-an-http3-request-over-quic) · [Proxy translation](#6-translate-a-request-at-the-edge) · [Local lab](#9-observe-request-completion-on-loopback) · [Self-check](#10-check-your-understanding)
 
-**Course material** · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [05 · Ports, sockets, TCP, and UDP](https://chatgpt.com/library?file_id=libfile_7565d39efd548191a4143e5087d272ef&account_id=personal) · [07 · TLS, HTTPS, and certificates](https://chatgpt.com/library?file_id=libfile_cea672efcaf48191871c267844a6056e&account_id=personal) · [08 · URLs and HTTP semantics](https://chatgpt.com/library?file_id=libfile_d78890543454819199535d49b9c64747&account_id=personal)
+**Course material** · [AppSec networking checklist](appsec-networking-checklist.md) · [05 · Ports, sockets, TCP, and UDP](05-ports-sockets-tcp-and-udp.md) · [07 · TLS, HTTPS, and certificates](07-tls-https-and-certificates.md) · [08 · URLs and HTTP semantics](08-urls-and-http-semantics.md)
 
 ## 1. Identify what is ending
 
@@ -188,9 +188,9 @@ Start with one request, its timestamp, route, and an edge-assigned request ID. I
 These **illustrative log entries** describe the buffered example. The `end` fields represent observations from the local HTTP implementation. Access logs vary in which fields they expose.
 
 ```text
-edge-in   id=r71  protocol=h3        stream=0  method=POST  path=/shipments  content_bytes=42  end=clean
-edge-out  id=r71  attempt=1  protocol=http/1.1  upstream=10.20.0.12:8443  framing=length  declared=42
-origin    id=r71  protocol=http/1.1  path=/shipments  content_bytes=42  end=complete  status=201
+edge-in   id=r39  protocol=h3        stream=0  method=POST  path=/shipments  content_bytes=42  end=clean
+edge-out  id=r39  attempt=1  protocol=http/1.1  upstream=10.20.0.12:8443  framing=length  declared=42
+origin    id=r39  protocol=http/1.1  path=/shipments  content_bytes=42  end=complete  status=201
 ```
 
 The request ID links the observations. The upstream attempt explains the count. The two receivers recorded completion according to their respective rules. Equal counts alone cannot establish byte-for-byte identity. When investigating size differences, first identify whether each number includes header bytes, chunk metadata, compression, or only the content. Log only the metadata needed for the investigation.
@@ -372,3 +372,7 @@ A fresh session should report distinct stream IDs `1` and `3`. Both rows should 
 6. **Wait for the missing range and validate the full HTTP message.** The QUIC final offset covers all the encoded bytes on that stream direction, including HTTP/3 framing and fields. `Content-Length` describes the content.
 7. **Correlate the edge's incoming request, upstream attempt, and origin log.** A buffering edge can compute a length. A streaming edge with an unknown final length can send a properly chunked HTTP/1.1 request.
 8. **For retry, establish the application outcome** from the committed record, application log, or an idempotency key under the API's contract. **For framing, compare both receivers' protocol, content bytes, completion or reset, and the proxy's outgoing framing for the same attempt.** A response timeout alone answers neither question.
+
+---
+
+[Previous · 08 URLs and HTTP semantics](08-urls-and-http-semantics.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 10 Browser security for web apps and APIs](10-browser-security.md)

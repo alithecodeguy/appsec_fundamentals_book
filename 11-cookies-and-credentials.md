@@ -6,7 +6,7 @@ The cookie lets the API look up Dana’s session. The session identifies her as 
 
 **Jump to** · [Sign-in and first read](#1-follow-a-sign-in-and-one-shipment-read) · [Cookie scope](#2-predict-which-cookies-travel) · [Fetch and CORS](#3-work-out-what-fetch-will-send) · [Session lifetime and logout](#4-manage-the-session-lifetime) · [Bearer tokens](#5-use-a-bearer-access-token) · [CSRF](#6-protect-a-cookie-authenticated-write) · [Record permissions](#7-authorize-the-action-on-the-record) · [Diagnosis](#8-read-the-evidence) · [Offline exercise](#9-try-the-record-check-in-sqlite) · [Self-check](#10-check-your-understanding)
 
-**Course connections** · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [07 · TLS and HTTPS](https://chatgpt.com/library?file_id=libfile_cea672efcaf48191871c267844a6056e&account_id=personal) · [08 · URLs and HTTP](https://chatgpt.com/library?file_id=libfile_d78890543454819199535d49b9c64747&account_id=personal) · [10 · Browser security](https://chatgpt.com/library?file_id=libfile_1e1aa473cebc8191a2cd45fdb3c83bd0&account_id=personal)
+**Course connections** · [AppSec networking checklist](appsec-networking-checklist.md) · [07 · TLS and HTTPS](07-tls-https-and-certificates.md) · [08 · URLs and HTTP](08-urls-and-http-semantics.md) · [10 · Browser security](10-browser-security.md)
 
 ## 1. Follow a sign-in and one shipment read
 
@@ -336,3 +336,7 @@ Enter `.quit` to close SQLite. The exercise demonstrates the server’s permissi
 5. **The represented principal needs current read permission for that particular shipment.** The API validates token type, issuer, audience, time and scope, then checks the shipment’s tenant or assignment against that principal.
 6. **The session, CSRF and action-on-record checks.** The server must enforce them before changing data. CORS response headers govern whether page code can read the result.
 7. **One redacted request and its matching authorization decision.** For the dashboard example, identify the session cookie on the `GET`, show that the API resolved it to `u17`, and identify the membership and shipment predicate that allowed the read of `S42`. For a bearer client, trace the validated token and its scope to the same record check.
+
+---
+
+[Previous · 10 Browser security for web apps and APIs](10-browser-security.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 12 Proxies and gateways](12-proxies-and-gateways.md)

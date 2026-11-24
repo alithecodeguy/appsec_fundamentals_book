@@ -1,10 +1,10 @@
-# IPv4, IPv6, and subnetting
+# 02 · IPv4, IPv6, and subnetting
 
 A shipment API should accept backend connections from a proxy at `10.20.0.5`. Two proposed source rules are `10.20.0.5/32` and `10.20.0.0/16`. Both match the proxy. The first selects one address. The second selects 65,536. If the API also listens on IPv6, there is another set of addresses to review.
 
 **The AppSec question is whether the effective policy admits every intended peer, and only those peers, on each address family the service uses.** To answer it, you need to read an address, calculate a prefix’s boundaries, and identify where on the connection path a rule is evaluated.
 
-This lesson continues the browser, edge proxy, and shipment API example from the [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) and [Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal).
+This lesson continues the browser, edge proxy, and shipment API example from the [AppSec networking checklist](appsec-networking-checklist.md) and [Network layers and devices](01-network-layers-and-devices.md).
 
 ## 1. Read an IP address
 
@@ -268,3 +268,7 @@ If a policy specifically means “one of the three RFC 1918 networks,” compare
 | Internal address planning | [IPv4 private space, RFC 1918](https://www.rfc-editor.org/rfc/rfc1918.html) · [IPv6 unique-local addresses, RFC 4193](https://www.rfc-editor.org/rfc/rfc4193.html) |
 | Host configuration and IPv6 sockets | [IPv6 SLAAC, RFC 4862](https://www.rfc-editor.org/rfc/rfc4862.html) · [Basic IPv6 socket API, RFC 3493](https://www.rfc-editor.org/rfc/rfc3493.html) |
 | Dual-stack behavior and policy review | [Happy Eyeballs v2, RFC 8305](https://www.rfc-editor.org/rfc/rfc8305.html) · [Operational security considerations for IPv6, RFC 9099](https://www.rfc-editor.org/rfc/rfc9099.html) |
+
+---
+
+[Previous · 01 Network layers and devices](01-network-layers-and-devices.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 03 Local networks](03-local-networks.md)

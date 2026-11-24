@@ -4,7 +4,7 @@ A dispatcher opens `https://api.example.com/shipments`. The laptop’s address i
 
 We will answer those questions for the office network, change the route by turning on a VPN, and diagnose a case where a small API call succeeds but a large transfer stalls. The IP addresses on the public side are reserved for documentation. The route tables and logs are worked examples you can use offline.
 
-**Earlier lessons** · [Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal) · [IPv4, IPv6, and subnetting](https://chatgpt.com/library?file_id=libfile_af22e7b9a23c8191b1feead127e36897&account_id=personal) · [Local networks](https://chatgpt.com/library?file_id=libfile_8693a991281481919c9bc67d8b8ffdf2&account_id=personal) · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal)
+**Earlier lessons** · [Network layers and devices](01-network-layers-and-devices.md) · [IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md) · [Local networks](03-local-networks.md) · [AppSec networking checklist](appsec-networking-checklist.md)
 
 ## 1. Follow a packet past the first hop
 
@@ -154,7 +154,7 @@ Suppose the laptop chooses `2001:db8:42:ab07::25` as its source and the public e
 
 An IPv6-only client can also reach an IPv4-only service through **NAT64**. In a common deployment, a **DNS64** resolver synthesizes an AAAA answer using the service’s IPv4 address and a configured IPv6 prefix. Routing takes packets for that prefix to the translator. The translator produces IPv4 packets, and the IPv4 service sees a source from the translator’s IPv4 pool. DNS64 supplies an address. NAT64 performs the packet translation.
 
-For an AppSec review, record the address family, intended ingress, firewall policy and application authorization for each reachable listener. Routed IPv6 can supply end-to-end addressability while a stateful firewall still blocks unsolicited inbound connections. An IPv4 service behind NAT can be publicly reachable through an allowed DNAT mapping. Decide exposure from the actual routes, mappings, policies and listeners. [IPv6 network protection](https://www.rfc-editor.org/rfc/rfc4864.html) · [Stateful NAT64](https://www.rfc-editor.org/rfc/rfc6146.html) · [DNS64](https://www.rfc-editor.org/rfc/rfc6147.html)
+For an AppSec review, record the address family, intended ingress, firewall policy and application authorization for each reachable listener. Routed IPv6 can supply end-to-end addressability while a stateful firewall still blocks unsolicited inbound connections. An IPv4 service behind NAT can be publicly reachable through an allowed DNAT mapping. Decide exposure from the actual routes, mappings, policies and listeners. [IPv6 network protection](https://datatracker.ietf.org/doc/html/rfc4864) · [Stateful NAT64](https://www.rfc-editor.org/rfc/rfc6146.html) · [DNS64](https://www.rfc-editor.org/rfc/rfc6147.html)
 
 ## 7. ICMP, packet loss and what a trace can establish
 
@@ -193,7 +193,7 @@ The **TCP maximum segment size (MSS)** is about TCP data per segment. Each endpo
 - **IPv6.** Forwarding routers do not fragment IPv6 packets. A router facing a smaller outgoing link drops the oversized packet and returns ICMPv6 **Packet Too Big**. The source can reduce packet size or perform source fragmentation where appropriate.
 - **Path MTU discovery.** Classical PMTUD uses that feedback. When the feedback disappears, a sender can keep retransmitting data that is too large, creating a *PMTU black hole*. Packetization-layer approaches can also probe usable sizes with transport feedback. Blanket ICMP filtering can disrupt these mechanisms and, for IPv6, other essential functions.
 
-**Worked diagnosis.** A dispatcher signs in over the VPN and small shipment queries succeed, yet a label upload stalls. The TCP handshake and small requests establish that some packets can pass. Larger transfers make full-sized data packets more likely. Compare the failing direction and packet sizes on the two tunnel boundaries. Check the configured inner MTU, retransmissions and whether relevant ICMP feedback reaches the sender. An explicit HTTP `413 Content Too Large` points to a size policy at an HTTP responder. A silent stall with repeated large segments and successful smaller transfers gives you a different lead. Either observation is more informative than “the VPN is slow.” [IPv4 PMTUD](https://www.rfc-editor.org/rfc/rfc1191.html) · [IPv6 PMTUD](https://www.rfc-editor.org/rfc/rfc8201.html) · [Packetization-layer discovery](https://www.rfc-editor.org/rfc/rfc8899.html) · [ICMPv6 filtering guidance](https://www.rfc-editor.org/rfc/rfc4890.html)
+**Worked diagnosis.** A dispatcher signs in over the VPN and small shipment queries succeed, yet a label upload stalls. The TCP handshake and small requests establish that some packets can pass. Larger transfers make full-sized data packets more likely. Compare the failing direction and packet sizes on the two tunnel boundaries. Check the configured inner MTU, retransmissions and whether relevant ICMP feedback reaches the sender. An explicit HTTP `413 Content Too Large` points to a size policy at an HTTP responder. A silent stall with repeated large segments and successful smaller transfers gives you a different lead. Either observation is more informative than “the VPN is slow.” [IPv4 PMTUD](https://datatracker.ietf.org/doc/html/rfc1191) · [IPv6 PMTUD](https://www.rfc-editor.org/rfc/rfc8201.html) · [Packetization-layer discovery](https://www.rfc-editor.org/rfc/rfc8899.html) · [ICMPv6 filtering guidance](https://www.rfc-editor.org/rfc/rfc4890.html)
 
 ## 9. Investigate an API connection
 
@@ -281,3 +281,7 @@ At `09:14:02 UTC` the public shipment edge accepts a TCP connection from **`198.
 | Can a firewall allow ICMP Echo yet still break IPv6 PMTUD? | Yes. Echo and Packet Too Big are different ICMPv6 messages. Small probes can succeed while necessary size feedback disappears |
 | A 1,450-byte inner IP packet enters the example tunnel. Does it fit intact? | It would need 1,530 outer bytes with the stated overhead, exceeding the 1,500-byte limit by 30. The effective inner MTU is 1,420 |
 | A trusted edge reports one public IP for fifty dispatchers. What identifies a user’s shipment access? | The authenticated account or session and the authorization decision for that shipment. A NAT mapping can help correlate an endpoint at a time, and shared IP alone cannot select an individual |
+
+---
+
+[Previous · 03 Local networks](03-local-networks.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 05 Ports, sockets, TCP, and UDP](05-ports-sockets-tcp-and-udp.md)

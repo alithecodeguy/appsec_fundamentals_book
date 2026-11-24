@@ -6,7 +6,7 @@ A developer’s laptop looks up `api.example.com` and gets `203.0.113.80`. At th
 
 This lesson follows `https://api.example.com/shipments` from a lookup through a DNS change and an incident investigation. The names and addresses below form a fictional deployment. The public edge addresses match the earlier lessons. The private ingress at `10.20.0.8` is an additional example endpoint.
 
-**Course material** · [Networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [01 · Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal) · [02 · IPv4, IPv6, and subnetting](https://chatgpt.com/library?file_id=libfile_af22e7b9a23c8191b1feead127e36897&account_id=personal) · [03 · Local networks](https://chatgpt.com/library?file_id=libfile_8693a991281481919c9bc67d8b8ffdf2&account_id=personal) · [04 · Routing and NAT](https://chatgpt.com/library?file_id=libfile_9037a1b2f728819192205007a9ef8f21&account_id=personal) · [05 · Ports, sockets, TCP, and UDP](https://chatgpt.com/library?file_id=libfile_7565d39efd548191a4143e5087d272ef&account_id=personal)
+**Course material** · [Networking checklist](appsec-networking-checklist.md) · [01 · Network layers and devices](01-network-layers-and-devices.md) · [02 · IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md) · [03 · Local networks](03-local-networks.md) · [04 · Routing and NAT](04-routing-and-nat.md) · [05 · Ports, sockets, TCP, and UDP](05-ports-sockets-tcp-and-udp.md)
 
 ## 1. What question does DNS answer?
 
@@ -337,3 +337,7 @@ Move the last two events to `t=119` and `t=129`. Both old answers now have one s
 6. Check TCP/53 from the requester to the resolver that returned the truncated reply. Also identify whether the recursive resolver itself has a transport problem reaching an authority.
 7. The HTTPS connection to the chosen resolver protected the client’s DNS exchange on that hop. TLS certificate and hostname verification on the later API connection establish the service identity. DNSSEC addresses the separate question of authenticity of signed DNS data.
 8. While retaining control of the provider binding, replace or remove the alias from relevant views. Verify the new answers and allow old references and active traffic to drain. Then release the old resource under the provider’s domain-ownership process.
+
+---
+
+[Previous · 05 Ports, sockets, TCP, and UDP](05-ports-sockets-tcp-and-udp.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 07 TLS, HTTPS, and certificates](07-tls-https-and-certificates.md)

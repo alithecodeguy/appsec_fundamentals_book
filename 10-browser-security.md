@@ -6,7 +6,7 @@ A dispatcher opens `https://app.example.com`. The dashboard calls `https://api.e
 
 **Jump to** · [Origins and sites](#1-compare-origins-and-sites) · [The browser's decisions](#2-what-the-same-origin-policy-protects) · [Credentialed fetch](#3-trace-a-credentialed-shipment-read) · [Preflights](#4-predict-when-a-preflight-runs) · [Cookies and credentials](#5-decide-which-credentials-travel) · [Mixed content, HSTS, and CSP](#6-check-the-page-and-transport-policies) · [Local lab](#9-observe-the-decisions-on-loopback) · [Self-check](#10-check-your-understanding)
 
-**Course material** · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [07 · TLS and HTTPS](https://chatgpt.com/library?file_id=libfile_cea672efcaf48191871c267844a6056e&account_id=personal) · [08 · URLs and HTTP semantics](https://chatgpt.com/library?file_id=libfile_d78890543454819199535d49b9c64747&account_id=personal) · [09 · HTTP versions and request boundaries](https://chatgpt.com/library?file_id=libfile_bf388af4b6f081918187c153952908cd&account_id=personal)
+**Course material** · [AppSec networking checklist](appsec-networking-checklist.md) · [07 · TLS and HTTPS](07-tls-https-and-certificates.md) · [08 · URLs and HTTP semantics](08-urls-and-http-semantics.md) · [09 · HTTP versions and request boundaries](09-http-versions-and-request-boundaries.md)
 
 ## 1. Compare origins and sites
 
@@ -91,7 +91,7 @@ Access-Control-Allow-Credentials: true
 Access-Control-Expose-Headers: X-Request-ID
 Vary: Origin
 Cache-Control: no-store
-X-Request-ID: r42
+X-Request-ID: r41
 
 [{"id":"S42","status":"in_transit"}]
 ```
@@ -122,14 +122,14 @@ The safelisted methods are `GET`, `HEAD`, and `POST`. Common safelisted request 
 
 ### Follow a JSON create through both exchanges
 
-The dashboard wants to submit the shipment object from lessons 08 and 09 using `POST`, `Content-Type: application/json`, `credentials: "include"`, and the application's `X-CSRF-Token` header. The first exchange asks about the **method and header names**. It carries neither the JSON nor the user's session cookie.
+The dashboard wants to submit the shipment object from lessons 08 and 09 using `POST`, `Content-Type: application/json`, and `credentials: "include"`. It sends the application's `X-CSRF-Token` for the cookie-authenticated write and an `Idempotency-Key` that identifies this create across retries. The first exchange asks about the **method and header names**. It carries neither the JSON nor the user's session cookie.
 
 ```http
 OPTIONS /shipments HTTP/1.1
 Host: api.example.com
 Origin: https://app.example.com
 Access-Control-Request-Method: POST
-Access-Control-Request-Headers: content-type, x-csrf-token
+Access-Control-Request-Headers: content-type, idempotency-key, x-csrf-token
 ```
 
 ```http
@@ -137,14 +137,14 @@ HTTP/1.1 204 No Content
 Access-Control-Allow-Origin: https://app.example.com
 Access-Control-Allow-Credentials: true
 Access-Control-Allow-Methods: POST
-Access-Control-Allow-Headers: Content-Type, X-CSRF-Token
+Access-Control-Allow-Headers: Content-Type, Idempotency-Key, X-CSRF-Token
 Access-Control-Max-Age: 600
 Vary: Origin
 ```
 
 1. **Evaluate the preflight.** The browser expects a successful HTTP status and permission for the origin, credentials mode, method, and proposed headers where required. A bare `204` is insufficient. Requiring a session cookie to answer this `OPTIONS` request prevents the subsequent credentialed operation.
 2. **Send the actual `POST` if permitted.** The API now checks the session, CSRF token, business rules, and the user's permission to create the shipment. Preflight approval decides none of those questions.
-3. **Evaluate the actual response.** A `201` or a validation error such as `422` needs the appropriate `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials` for this page to read it. If they are missing, the create could already have committed. Check its outcome before retrying.
+3. **Evaluate the actual response.** A `201` or a validation error such as `422` needs the appropriate `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials` for this page to read it. If they are missing, the create could already have committed. On a retry, reuse the key so the API can return the original creation receipt. [Shipment retry contract](18-availability-and-retries.md#4-make-a-shipment-create-safe-to-repeat)
 
 `Access-Control-Allow-Headers` refers to headers the browser may **send**. `Access-Control-Expose-Headers` refers to response headers the script may **read**. If the client explicitly sends `Authorization`, list it by name in the preflight permission. The ordinary HTTP `Allow` header describes methods supported by a resource and does not grant CORS permission.
 
@@ -365,7 +365,7 @@ Click **Allow the API in CSP** to restore the initial document policy. Stop the 
 4. The API returns `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Credentials: true`. The dashboard uses `include`, but the user has no cookies. Can the page read the response?
 5. The API's host-only session cookie is `Secure; HttpOnly; SameSite=Lax`. Must it set `Domain=example.com`, use `SameSite=None`, or expose the cookie to JavaScript for this top-level dashboard to read shipments?
 6. The dashboard uses HTTPS and enforces `connect-src 'self'`. Someone changes the API URL to `https://api.example.com` and adds correct CORS headers. Why can the browser still block it? Would HSTS on `app.example.com` cover the sibling API?
-7. The page can parse the shipment JSON. DevTools shows `X-Request-ID: r42`, but `response.headers.get("X-Request-ID")` returns `null`. Which header is relevant?
+7. The page can parse the shipment JSON. DevTools shows `X-Request-ID: r41`, but `response.headers.get("X-Request-ID")` returns `null`. Which header is relevant?
 8. A credentialed create received a successful preflight. Its final response failed CORS. What should be checked before retrying, and which controls on the server protect the write?
 9. A WebSocket at `wss://api.example.com/ws/events` opens successfully. The dispatcher's permission for one customer is then revoked. Which component must stop those shipment updates?
 
@@ -380,3 +380,7 @@ Click **Allow the API in CSP** to restore the initial document policy. Stop the 
 7. `Access-Control-Expose-Headers: X-Request-ID` on the actual response exposes the response header to script. `Access-Control-Allow-Headers` governs headers proposed for the outgoing request.
 8. The operation may have committed. Check the application outcome or use the API's documented idempotency mechanism. The API verifies the session, the CSRF protection for the write, and the user's permission. The browser's CORS error only describes access to the response.
 9. The WebSocket service must revoke the affected subscription or close the connection as appropriate and stop delivering those records. The opening origin check and the page's CSP do not track later changes to user permissions.
+
+---
+
+[Previous · 09 HTTP versions and request boundaries](09-http-versions-and-request-boundaries.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 11 Cookies and credentials](11-cookies-and-credentials.md)

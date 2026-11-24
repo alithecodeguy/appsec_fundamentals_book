@@ -6,7 +6,7 @@ Dana opens the shipment dashboard twice. On the second visit, the browser loads 
 
 **Jump to** · [Cache locations](#1-what-an-http-cache-keeps) · [Keys and Vary](#2-match-the-request-to-a-stored-representation) · [Cache-Control](#3-read-cache-control-as-a-policy) · [Freshness and Age](#4-calculate-when-the-copy-becomes-stale) · [ETags and 304](#5-revalidate-with-etag-and-last-modified) · [Signed-in responses](#6-protect-signed-in-responses) · [Invalidation](#7-change-data-and-invalidate-old-copies) · [Browser and CDN evidence](#8-read-browser-and-cdn-evidence) · [Local exercise](#9-run-a-local-conditional-get-exercise) · [Self-check](#10-check-your-understanding)
 
-**Course connections** · [AppSec networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [08 · URLs and HTTP](https://chatgpt.com/library?file_id=libfile_d78890543454819199535d49b9c64747&account_id=personal) · [10 · Browser security](https://chatgpt.com/library?file_id=libfile_1e1aa473cebc8191a2cd45fdb3c83bd0&account_id=personal) · [11 · Cookies and credentials](https://chatgpt.com/library?file_id=libfile_5cf660f9af788191a4d3864310d2538f&account_id=personal) · [12 · Proxies and gateways](https://chatgpt.com/library?file_id=libfile_45c476f97fa48191863408bd993ee35c&account_id=personal)
+**Course connections** · [AppSec networking checklist](appsec-networking-checklist.md) · [08 · URLs and HTTP](08-urls-and-http-semantics.md) · [10 · Browser security](10-browser-security.md) · [11 · Cookies and credentials](11-cookies-and-credentials.md) · [12 · Proxies and gateways](12-proxies-and-gateways.md)
 
 ## 1. What an HTTP cache keeps
 
@@ -171,7 +171,7 @@ A shared cache hit can return data before the request reaches the service that c
 
 - A request’s **`Cookie`** header does not, by itself, prohibit shared storage. A **`Set-Cookie`** response header also leaves HTTP caching possible under the standard. A CDN may apply stricter defaults. Express the intended policy explicitly, especially for sign-in, session and personalized responses.
 - A request with **`Authorization`** has an extra shared-cache restriction. RFC 9111 identifies `public`, `s-maxage` and `must-revalidate` as response directives that can lift that restriction, subject to all other storage and reuse rules. **`max-age` alone is insufficient.** In particular, `must-revalidate` requires validation *once stale*. A fresh response may still be reused. None of these directives verifies the next caller’s entitlement.
-- **`Vary: Cookie`** asks a cache to match a request header. It can create many variants, and an unchanged cookie can outlive a change in permissions. **`Vary: Origin`** distinguishes sites making browser requests. Choosing either field leaves the application responsible for authorization.
+- **`Vary: Cookie`** asks a cache to match a request header. It can create many variants, and an unchanged cookie can outlive a change in permissions. **`Vary: Origin`** tells the cache to match the request’s `Origin` header. Two dashboard origins on the same site can select different CORS variants, while two users on the same origin can still have different shipment permissions. The API checks those permissions.
 - Even if all current members of one organization would receive identical bytes, a cache in front of the membership check can also receive requests from other callers. A design that intentionally shares protected data needs authentication and authorization **before every reuse**, plus a trusted way to select exactly the permitted representation. The sensitive shipment routes above instead bypass shared storage and reuse.
 
 **Authorization also applies to `304`.** Suppose Dana opens her preferences, then loses access or changes accounts. If her browser later sends an old ETag, the service first checks the current session, permission and selected representation. It can return an appropriate denial or a new authorized `200`. Returning `304` solely because the client supplied a familiar tag would tell the client to reuse an old body. [Caching authenticated requests](https://www.rfc-editor.org/rfc/rfc9111.html#section-3.5) · [Caching sensitive information](https://www.rfc-editor.org/rfc/rfc9111.html#section-7.3) · [When to evaluate HTTP preconditions](https://www.rfc-editor.org/rfc/rfc9110.html#section-13.2.1)
@@ -226,7 +226,7 @@ For `fetch("https://api.example.com/shipments", { credentials: "include" })`, `c
 
 ## 9. Run a local conditional GET exercise
 
-Run this block in a macOS or Linux shell with Python 3. It starts a temporary HTTP origin on loopback, makes four real requests, and closes the listener. The client explicitly keeps the English body and tag so you can see the bytes on the wire separately from the body a cache can reuse. The fixture uses two exact language preferences and the single strong tag its client supplies.
+Run this block in a macOS or Linux shell with Python 3. It starts a temporary HTTP origin on loopback, makes four requests to `/reference/shipment-statuses`, and closes the listener. The fixture serves one status label as plain text in English or Persian. The client keeps the English body and tag so you can compare the bytes on the wire with the body a cache can reuse.
 
 Predict the status and body for each read. First request English. Validate it without changing anything. Request Persian for the same URL. Finally, edit the English label at the origin and send the old English tag again.
 
@@ -237,12 +237,13 @@ from http.client import HTTPConnection
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 
+labels_path = "/reference/shipment-statuses"
 labels = {"en": "Dispatched", "fa": "ارسال شد"}
 
 class LabelsHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         lang = self.headers.get("Accept-Language", "en")
-        if self.path != "/labels" or lang not in labels:
+        if self.path != labels_path or lang not in labels:
             self.send_error(404)
             return
 
@@ -270,7 +271,7 @@ def read(address, lang, tag=None):
         headers["If-None-Match"] = tag
     connection = HTTPConnection(*address, timeout=5)
     try:
-        connection.request("GET", "/labels", headers=headers)
+        connection.request("GET", labels_path, headers=headers)
         response = connection.getresponse()
         body = response.read()
         print(lang, response.status, len(body), body.decode() or "(empty)")
@@ -322,3 +323,7 @@ All four requests intentionally reach the local origin. To practice the **fresh-
 5. **No.** A shared cache needs an applicable explicit permission for the response to a request with `Authorization` as well as the other storage and reuse conditions. A genuinely public catalog can use `public` with an explicit lifetime and correct variant handling if its body and headers are suitable for every eligible recipient.
 6. **The edge validated its own stored body.** Its conditional upstream request received `304`, so the edge could send the stored JSON with a `200` to a browser making an unconditional request. Check which hop logged each status.
 7. **Inspect the asset URL and the browser’s transfer source, then check the HTML that referenced it.** A browser can still have a fresh copy that the CDN purge never touched. Publish changed bytes under a new content-versioned URL and give the HTML a policy that lets it discover the new release.
+
+---
+
+[Previous · 12 Proxies and gateways](12-proxies-and-gateways.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 14 Server-side requests and webhooks](14-server-side-requests-and-webhooks.md)

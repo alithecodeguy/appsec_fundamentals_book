@@ -6,7 +6,7 @@ A dispatcher shares a link to the shipments dashboard. It opens with the carrier
 
 **Jump to** · [URL anatomy](#1-take-apart-a-dashboard-url) · [Routing](#2-follow-the-document-and-api-requests) · [Encoding](#3-encode-data-and-normalize-urls) · [Methods and retries](#5-choose-a-method-and-decide-whether-to-retry) · [Redirects](#7-follow-a-redirect-one-request-at-a-time) · [Local lab](#9-observe-two-hosts-on-one-local-listener) · [Self-check](#10-check-your-understanding)
 
-**Course material** · [Networking checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [05 · Ports and sockets](https://chatgpt.com/library?file_id=libfile_7565d39efd548191a4143e5087d272ef&account_id=personal) · [06 · DNS](https://chatgpt.com/library?file_id=libfile_63e33ed275948191b479eb2a0ecdabd0&account_id=personal) · [07 · TLS and HTTPS](https://chatgpt.com/library?file_id=libfile_cea672efcaf48191871c267844a6056e&account_id=personal)
+**Course material** · [Networking checklist](appsec-networking-checklist.md) · [05 · Ports and sockets](05-ports-sockets-tcp-and-udp.md) · [06 · DNS](06-dns.md) · [07 · TLS and HTTPS](07-tls-https-and-certificates.md)
 
 ## 1. Take apart a dashboard URL
 
@@ -394,3 +394,7 @@ The second browser query displays **S43**. To relate a visible result to the pro
 6. `303 See Other` directs the client to retrieve the confirmation resource. `307 Temporary Redirect` preserves the method and content when followed.
 7. Under the example API's contract these yield `422` for a semantic validation error, `415` for the unsupported request format, and `406` for the unsatisfied response preference when enforced.
 8. Check the fetch URL and authority, intermediate redirects, final `Content-Type`, and the response preview. An HTML login or dashboard page points to routing or session handling. A JSON response with malformed content points to the producer.
+
+---
+
+[Previous · 07 TLS, HTTPS, and certificates](07-tls-https-and-certificates.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 09 HTTP versions and request boundaries](09-http-versions-and-request-boundaries.md)

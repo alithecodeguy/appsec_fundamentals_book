@@ -6,7 +6,7 @@ A dispatcher opens the shipment dashboard. The browser reaches the public edge o
 
 This lesson builds from that example to the TCP handshake, byte delivery, connection shutdown and UDP datagrams. It ends with a short experiment you can run on one computer.
 
-**Course material** · [Checklist](https://chatgpt.com/library?file_id=libfile_a587b9ac4b10819195b004ce505754a5&account_id=personal) · [01 · Network layers and devices](https://chatgpt.com/library?file_id=libfile_e59488c781248191967d1805356b5448&account_id=personal) · [02 · IPv4, IPv6, and subnetting](https://chatgpt.com/library?file_id=libfile_af22e7b9a23c8191b1feead127e36897&account_id=personal) · [03 · Local networks](https://chatgpt.com/library?file_id=libfile_8693a991281481919c9bc67d8b8ffdf2&account_id=personal) · [04 · Routing and NAT](https://chatgpt.com/library?file_id=libfile_9037a1b2f728819192205007a9ef8f21&account_id=personal)
+**Course material** · [Checklist](appsec-networking-checklist.md) · [01 · Network layers and devices](01-network-layers-and-devices.md) · [02 · IPv4, IPv6, and subnetting](02-ipv4-ipv6-and-subnetting.md) · [03 · Local networks](03-local-networks.md) · [04 · Routing and NAT](04-routing-and-nat.md)
 
 ## 1. Read a transport endpoint
 
@@ -288,3 +288,7 @@ Change the stream reader’s `recv(3)` to `recv(1)` or `recv(64)`. The printed s
 6. Yes. A FIN closes one direction. Long-lived `CLOSE-WAIT` entries mean the local application still holds sockets whose peers finished sending. Inspect whether the program is still legitimately producing output or has missed a cleanup path.
 7. The local socket selected its peer. A missing reply leaves several possibilities, including loss, a silent service, filtering, or no listener. A valid protocol-level response or correlated server-side observation gives stronger evidence.
 8. An authenticated lookup of the resulting shipment, a durable application record correlated with the request, or the API’s stored idempotency result can establish the outcome. The transport ACK and the client timeout alone cannot.
+
+---
+
+[Previous · 04 Routing and NAT](04-routing-and-nat.md) · [Course checklist](appsec-networking-checklist.md) · [Next · 06 DNS and service discovery](06-dns.md)
